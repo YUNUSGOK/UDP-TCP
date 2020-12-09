@@ -109,6 +109,6 @@ def tcpServer(TCP_SERVER_PORT = 65432  ):
 args = sys.argv
 UDP_SERVER_PORT = int(args[1])
 TDP_SERVER_PORT = int(args[2])
-#udpThread = threading.Thread(target=udpServer,args=(UDP_SERVER_PORT,))
-#udpThread.start()
+udpThread = threading.Thread(target=udpServer,args=(UDP_SERVER_PORT,))
+udpThread.start()
 tcpServer(TDP_SERVER_PORT)
