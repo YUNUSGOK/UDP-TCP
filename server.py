@@ -20,6 +20,7 @@ def printTimes(recievedTimes,sendedTimes,protocol):
     for i in range(n):
         r = recievedTimes[i]
         s = datetime.strptime(sendedTimes[i],dateFormat)
+        print(r,"\n",s)
         transmissionTimes.append((r - s).total_seconds()*1000)
     
     avgTime = sum(transmissionTimes)/len(transmissionTimes)
@@ -86,6 +87,7 @@ def tcpServer(TCP_SERVER_PORT = 65432  ):
         with conn:
             print('Connected by', addr)
             while True:
+
                 recievedMessage = conn.recv(BUFF_SIZE)
                 recievedTime = datetime.now()
                 if not recievedMessage:
@@ -96,6 +98,7 @@ def tcpServer(TCP_SERVER_PORT = 65432  ):
                 recievedTimes.append(recievedTime)
                 
                 sendedTimes.append(decodedMessage["sendedTime"])
+
                 conn.sendall(responseMessage(1,))
 
             
@@ -106,6 +109,6 @@ def tcpServer(TCP_SERVER_PORT = 65432  ):
 args = sys.argv
 UDP_SERVER_PORT = int(args[1])
 TDP_SERVER_PORT = int(args[2])
-udpThread = threading.Thread(target=udpServer,args=(UDP_SERVER_PORT,))
-udpThread.start()
+#udpThread = threading.Thread(target=udpServer,args=(UDP_SERVER_PORT,))
+#udpThread.start()
 tcpServer(TDP_SERVER_PORT)
