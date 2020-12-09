@@ -114,7 +114,7 @@ def tcpClient(SERVER_IP = "127.0.0.1",SERVER_PORT_TCP =65432 , CLIENT_PORT_TCP =
     clientAddressPort = (CLIENT_IP, CLIENT_PORT_TCP)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        #s.bind(clientAddressPort)
+        s.bind(clientAddressPort)
         s.connect(serverAddressPort)
         
         for i in range(chunkSize):
