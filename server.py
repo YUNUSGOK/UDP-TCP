@@ -14,13 +14,18 @@ def writeToFile(data,filename):
     f.close()  
 
 def printTimes(recievedTimes,sendedTimes,protocol):
+    dateFormat = "%m/%d/%Y, %H:%M:%S%f"
     transmissionTimes = []
     n= len(recievedTimes)
     for i in range(n):
-        transmissionTimes.append(recievedTimes[i] - sendedTimes[i])
+        r = recievedTimes[i]
+        s = datetime.strptime(sendedTimes[i],dateFormat)
+        transmissionTimes.append((r - s).total_seconds()*1000)
     
     avgTime = sum(transmissionTimes)/len(transmissionTimes)
-    conTime = recievedTimes[n-1]-sendedTimes[0]
+    startTime = datetime.strptime(sendedTimes[0],dateFormat)
+    endTime =  recievedTimes[n-1]
+    conTime = (endTime - startTime).total_seconds()*1000
     print(protocol,"Packets Average Transmission Time:", avgTime," ms")
     print(protocol,"Packets Total Transmission Time:", conTime," ms")
 
@@ -41,9 +46,6 @@ def udpServer(UDP_SERVER_PORT  =  20001):
 
     UDPServerSocket.bind((SERVER_IP, UDP_SERVER_PORT))
 
-    
-
-
 
     # Listen for incoming datagrams
     expected = 0
@@ -51,7 +53,7 @@ def udpServer(UDP_SERVER_PORT  =  20001):
     while(True):
 
         recievedMessage, address = UDPServerSocket.recvfrom(BUFF_SIZE)
-        recievedTime = datetime.now().timestamp()*1000
+        recievedTime = datetime.now()
         if not recievedMessage:
             break
         decodedMessage = json.loads(recievedMessage.decode('utf-8'))
@@ -80,22 +82,22 @@ def tcpServer(TCP_SERVER_PORT = 65432  ):
         s.listen()
         conn, addr = s.accept()
         recievedFileData = ""
-        connectionStartTime = datetime.now().timestamp()*1000
+
         with conn:
             print('Connected by', addr)
             while True:
                 recievedMessage = conn.recv(BUFF_SIZE)
-                recievedTime = datetime.now().timestamp()*1000
+                recievedTime = datetime.now()
                 if not recievedMessage:
                     break
                 
                 decodedMessage = json.loads(recievedMessage.decode('utf-8'))
                 recievedFileData += decodedMessage["data"]
                 recievedTimes.append(recievedTime)
-                transmissionTimes.append( recievedTime-decodedMessage["sendedTime"])
+                
                 sendedTimes.append(decodedMessage["sendedTime"])
                 conn.sendall(responseMessage(1,))
-        connectionEndTime = datetime.now().timestamp()*1000
+
             
 
     writeToFile(recievedFileData,"tcp.txt") 

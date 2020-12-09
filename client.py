@@ -40,7 +40,8 @@ def fragmentFile(filename):
     return chunks
 
 def message(sendedTime, chunkSize=0, index=0, data = ""):
-    mdict = {'sendedTime' : sendedTime,
+    dateFormat = "%m/%d/%Y, %H:%M:%S%f"
+    mdict = {'sendedTime' : sendedTime.strftime(dateFormat),
         "chunksize": chunkSize,'index' : index, 'data': data} 
     return json.dumps(mdict).encode('utf-8') 
 
@@ -87,7 +88,7 @@ def udpClient(SERVER_IP = "127.0.0.1",SERVER_PORT_UDP=20001 ,CLIENT_PORT_UDP = 4
             break
         try:
             for i in range(min(4,chunkSize-ex)):
-                sendedTime = (datetime.now().timestamp()*1000)
+                sendedTime = (datetime.now())
                 sendedMessage = message(sendedTime, chunkSize, ex+i, chunks[ex+i])
                 UDPClientSocket.sendto(sendedMessage, serverAddressPort)
                 totalSendCount += 1
@@ -113,12 +114,12 @@ def tcpClient(SERVER_IP = "127.0.0.1",SERVER_PORT_TCP =65432 , CLIENT_PORT_TCP =
     clientAddressPort = (CLIENT_IP, CLIENT_PORT_TCP)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind(clientAddressPort)
+        #s.bind(clientAddressPort)
         s.connect(serverAddressPort)
         
         for i in range(chunkSize):
 
-            sendedTime = (datetime.now().timestamp()*1000)
+            sendedTime = datetime.now()
             
             sendedMessage = message(sendedTime, chunkSize, i, chunks[i] )
             s.sendall(sendedMessage)
