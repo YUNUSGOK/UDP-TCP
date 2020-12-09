@@ -9,7 +9,7 @@ import threading
 
 
 BUFF_SIZE = 4096
-CLIENT_IP = "127.0.0.1"
+CLIENT_IP = socket.gethostbyname(socket.gethostname())
 HOST = '127.0.0.1'  # The server's hostname or IP address
 PORT = 20001       # The port used by the server
 

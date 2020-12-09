@@ -5,7 +5,7 @@ import json
 import time
 import sys
 
-SERVER_IP  = "127.0.0.1"
+SERVER_IP  = socket.gethostbyname(socket.gethostname())
 BUFF_SIZE  = 4096
 
 def writeToFile(data,filename):
