@@ -3,6 +3,7 @@ import socket
 from datetime import datetime
 import json 
 import time
+import sys
 
 SERVER_IP  = "127.0.0.1"
 BUFF_SIZE  = 4096
@@ -100,7 +101,9 @@ def tcpServer(TCP_SERVER_PORT = 65432  ):
     writeToFile(recievedFileData,"tcp.txt") 
     printTimes(recievedTimes,sendedTimes,"TCP")
     
-
-udpThread = threading.Thread(target=udpServer)
+args = sys.argv
+UDP_SERVER_PORT = int(args[1])
+TDP_SERVER_PORT = int(args[2])
+udpThread = threading.Thread(target=udpServer,args=(UDP_SERVER_PORT,))
 udpThread.start()
-tcpServer()
+tcpServer(TDP_SERVER_PORT)

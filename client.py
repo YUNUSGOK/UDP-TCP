@@ -3,7 +3,7 @@ import socket
 import os
 import time
 from datetime import datetime
-
+import sys
 import json 
 import threading
 
@@ -125,5 +125,12 @@ def tcpClient(SERVER_IP = "127.0.0.1",SERVER_PORT_TCP =65432 , CLIENT_PORT_TCP =
             data = s.recv(BUFF_SIZE)
 
 
-tcpClient()
-udpClient()
+args = sys.argv
+SERVER_IP = args[1]
+SERVER_PORT_UDP = int(args[2])
+SERVER_PORT_TCP = int(args[3])
+CLIENT_PORT_UDP = int(args[4])
+CLIENT_PORT_TCP = int(args[5])
+
+tcpClient(SERVER_IP, SERVER_PORT_TCP, CLIENT_PORT_TCP)
+udpClient(SERVER_IP, SERVER_PORT_UDP, CLIENT_PORT_UDP)
