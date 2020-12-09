@@ -20,7 +20,7 @@ def printTimes(recievedTimes,sendedTimes,protocol):
     for i in range(n):
         r = recievedTimes[i]
         s = datetime.strptime(sendedTimes[i],dateFormat)
-        print(r,"\n",s)
+
         transmissionTimes.append((r - s).total_seconds()*1000)
     
     avgTime = sum(transmissionTimes)/len(transmissionTimes)
