@@ -4,6 +4,8 @@ from datetime import datetime
 import json 
 import time
 import sys
+import random
+import hashlib
 
 SERVER_IP  = socket.gethostbyname(socket.gethostname())
 BUFF_SIZE  = 4096
@@ -13,20 +15,31 @@ def writeToFile(data,filename):
     f.write(data)
     f.close()  
 
+def createChecksum(d):
+    scale = 16
+    total = 0
+
+    for i in d: 
+        s = str(d[i])
+        hashed = hashlib.md5(s.encode("utf-8")) 
+        hexValue = hashed.hexdigest()
+        total += int(hexValue,16)
+    return total
+
 def printTimes(recievedTimes,sendedTimes,protocol):
-    dateFormat = "%m/%d/%Y, %H:%M:%S%f"
+
     transmissionTimes = []
     n= len(recievedTimes)
     for i in range(n):
         r = recievedTimes[i]
-        s = datetime.strptime(sendedTimes[i],dateFormat)
+        s = sendedTimes[i]
 
-        transmissionTimes.append((r - s).total_seconds()*1000)
+        transmissionTimes.append(r - s)
     
     avgTime = sum(transmissionTimes)/len(transmissionTimes)
-    startTime = datetime.strptime(sendedTimes[0],dateFormat)
+    startTime = sendedTimes[0]
     endTime =  recievedTimes[n-1]
-    conTime = (endTime - startTime).total_seconds()*1000
+    conTime = endTime - startTime
     print(protocol,"Packets Average Transmission Time:", avgTime," ms")
     print(protocol,"Packets Total Transmission Time:", conTime," ms")
 
@@ -34,6 +47,11 @@ def responseMessage(id,index=-1):
     mdict = {'messageId' : id, "index" : index} 
     return json.dumps(mdict).encode('utf-8') 
 
+def readMessage(message):
+    decodedMessage = json.loads(message.decode('utf-8'))
+    header = decodedMessage["header"]
+    check = createChecksum(header) == decodedMessage["checksum"]
+    return header,check
  
 
 def udpServer(UDP_SERVER_PORT  =  20001):
@@ -54,13 +72,12 @@ def udpServer(UDP_SERVER_PORT  =  20001):
     while(True):
 
         recievedMessage, address = UDPServerSocket.recvfrom(BUFF_SIZE)
-        recievedTime = datetime.now()
+        recievedTime = time.time()*1000
         if not recievedMessage:
             break
-        decodedMessage = json.loads(recievedMessage.decode('utf-8'))
+        decodedMessage ,check = readMessage(recievedMessage)
 
-
-        if  (decodedMessage["index"] == expected):
+        if  (decodedMessage["index"] == expected and check == True):
             expected += 1
             recievedTimes.append(recievedTime) 
             sendedTimes.append(decodedMessage["sendedTime"])
@@ -89,11 +106,11 @@ def tcpServer(TCP_SERVER_PORT = 65432  ):
             while True:
 
                 recievedMessage = conn.recv(BUFF_SIZE)
-                recievedTime = datetime.now()
+                recievedTime = time.time()*1000
                 if not recievedMessage:
                     break
                 
-                decodedMessage = json.loads(recievedMessage.decode('utf-8'))
+                decodedMessage ,check = readMessage(recievedMessage)
                 recievedFileData += decodedMessage["data"]
                 recievedTimes.append(recievedTime)
                 

@@ -6,6 +6,7 @@ from datetime import datetime
 import sys
 import json 
 import threading
+import hashlib
 
 
 BUFF_SIZE = 4096
@@ -39,9 +40,30 @@ def fragmentFile(filename):
         chunks.append(data)
     return chunks
 
+def createMessage( index=0, data = ""):
+
+    sendedTime = time.time()*1000
+    header = {'sendedTime' : sendedTime,
+        'index' : index, 'data': data}
+    checksum = createChecksum(header)
+    message = {'header': header, "checksum": checksum }
+    return json.dumps(message).encode('utf-8')
+
+
+def createChecksum(d):
+    scale = 16
+    total = 0
+
+    for i in d: 
+        s = str(d[i])
+        hashed = hashlib.md5(s.encode("utf-8")) 
+        hexValue = hashed.hexdigest()
+        total += int(hexValue,16)
+    return total
+
 def message(sendedTime, chunkSize=0, index=0, data = ""):
-    dateFormat = "%m/%d/%Y, %H:%M:%S%f"
-    mdict = {'sendedTime' : sendedTime.strftime(dateFormat),
+
+    mdict = {'sendedTime' : sendedTime,
         "chunksize": chunkSize,'index' : index, 'data': data} 
     return json.dumps(mdict).encode('utf-8') 
 
@@ -88,14 +110,14 @@ def udpClient(SERVER_IP = "127.0.0.1",SERVER_PORT_UDP=20001 ,CLIENT_PORT_UDP = 4
             break
         try:
             for i in range(min(4,chunkSize-ex)):
-                sendedTime = (datetime.now())
-                sendedMessage = message(sendedTime, chunkSize, ex+i, chunks[ex+i])
+                sendedMessage = createMessage( ex + i, chunks[ex+ i] )
+        
                 UDPClientSocket.sendto(sendedMessage, serverAddressPort)
                 totalSendCount += 1
 
 
             count = 0
-            while(changed == False and count<10):
+            while(changed == False and count<20):
                 count += 1
                 time.sleep(0.05)
             change()
@@ -119,9 +141,8 @@ def tcpClient(SERVER_IP = "127.0.0.1",SERVER_PORT_TCP =65432 , CLIENT_PORT_TCP =
         
         for i in range(chunkSize):
 
-            sendedTime = datetime.now()
             
-            sendedMessage = message(sendedTime, chunkSize, i, chunks[i] )
+            sendedMessage = createMessage( i, chunks[i] )
             s.sendall(sendedMessage)
             data = s.recv(BUFF_SIZE)
 
@@ -134,5 +155,4 @@ CLIENT_PORT_UDP = int(args[4])
 CLIENT_PORT_TCP = int(args[5])
 
 tcpClient(SERVER_IP, SERVER_PORT_TCP, CLIENT_PORT_TCP)
-udpClient(SERVER_IP,
-    SERVER_PORT_UDP, CLIENT_PORT_UDP)
+udpClient(SERVER_IP,SERVER_PORT_UDP, CLIENT_PORT_UDP)

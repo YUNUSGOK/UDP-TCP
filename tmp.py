@@ -1,34 +1,39 @@
+import hashlib 
+from datetime import datetime
+import json
 
-# importing the modules 
-from threading import *         
-import time         
-  
-# creating thread instance where count = 3 
-obj = Semaphore(3)         
-  
-# creating instance 
-def display(name):     
-    
-    # calling acquire method 
-    obj.acquire()                 
-    for i in range(5): 
-        print('Hello, ', end = '') 
-        time.sleep(1) 
-        print(name) 
-          
-        # calling release method 
-        obj.release()     
-          
-# creating multiple thread  
-t1 = Thread(target = display , args = ('Thread-1',)) 
-t2 = Thread(target = display , args = ('Thread-2',)) 
-t3 = Thread(target = display , args = ('Thread-3',)) 
-t4 = Thread(target = display , args = ('Thread-4',)) 
-t5 = Thread(target = display , args = ('Thread-5',)) 
-  
-# calling the threads  
-t1.start() 
-t2.start() 
-t3.start() 
-t4.start() 
-t5.start()
+def createMessage( index=0, data = ""):
+
+    sendedTime = datetime.now().timestamp()*1000
+    header = {'sendedTime' : sendedTime,
+        'index' : index, 'data': data}
+    checksum = createChecksum(header)
+    message = {'header': header, "checksum": checksum }
+    return json.dumps(message).encode('utf-8')
+
+
+def createChecksum(d):
+    scale = 16
+    total = 0
+    print(d)
+    for i in d: 
+        s = str(d[i])
+        hashed = hashlib.md5(s.encode("utf-8")) 
+        hexValue = hashed.hexdigest()
+        total += int(hexValue,16)
+    return total
+
+def readMessage(message):
+    decodedMessage = json.loads(message.decode('utf-8'))
+    header = decodedMessage["header"]
+    header["sendedTime"] +=2 
+    check = createChecksum(header) == decodedMessage["checksum"]
+    return header,check
+
+thisdict = {
+  "brand": "Ford",
+  "model": "Mustang",
+  "year": 1964
+}
+
+print(readMessage(createMessage()))
