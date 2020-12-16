@@ -2,11 +2,12 @@
 import os
 import filecmp 
 dirname = os.path.dirname(__file__)
-tcp1 = os.path.join(dirname, 'transfer_file_TCP.txt')
-tcp2 = os.path.join(dirname, 'tcp.txt')
+print(dirname)
+tcp1 = os.path.join(dirname, 'client/transfer_file_TCP.txt')
+tcp2 = os.path.join(dirname, 'server/transfer_file_TCP.txt')
 
-udp1 = os.path.join(dirname, 'transfer_file_UDP.txt')
-udp2 = os.path.join(dirname, 'udp.txt')
+udp1 = os.path.join(dirname, 'client/transfer_file_UDP.txt')
+udp2 = os.path.join(dirname, 'server/transfer_file_UDP.txt')
 
 
 comp1 = filecmp.cmp(tcp1 , tcp2 ) 

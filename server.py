@@ -7,7 +7,9 @@ import sys
 import random
 import hashlib
 
+#Internal IP of current Host
 SERVER_IP  = socket.gethostbyname(socket.gethostname())
+#How many bites will be readed from coming message
 BUFF_SIZE  = 4096
 
 def writeToFile(data,filename):
@@ -54,7 +56,7 @@ def readMessage(message):
     return header,check
  
 
-def udpServer(UDP_SERVER_PORT  =  20001):
+def udpServer(UDP_SERVER_PORT  =  20001, packet_corruption_ratio = 0, delaying_ratio = 0 , delay_time = 0 ):
 
     UDPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
@@ -76,8 +78,11 @@ def udpServer(UDP_SERVER_PORT  =  20001):
         if not recievedMessage:
             break
         decodedMessage ,check = readMessage(recievedMessage)
-
+        if(packet_corruption_ratio > 0 and random.randint(0,int(100/packet_corruption_ratio))== 0):
+            continue
         if  (decodedMessage["index"] == expected and check == True):
+            if(delaying_ratio > 0 and random.randint(0,int(100/delaying_ratio))== 0):
+                time.sleep(delay_time)
             expected += 1
             recievedTimes.append(recievedTime) 
             sendedTimes.append(decodedMessage["sendedTime"])
@@ -102,7 +107,7 @@ def tcpServer(TCP_SERVER_PORT = 65432  ):
         recievedFileData = ""
 
         with conn:
-            print('Connected by', addr)
+
             while True:
 
                 recievedMessage = conn.recv(BUFF_SIZE)
@@ -126,6 +131,13 @@ def tcpServer(TCP_SERVER_PORT = 65432  ):
 args = sys.argv
 UDP_SERVER_PORT = int(args[1])
 TDP_SERVER_PORT = int(args[2])
-udpThread = threading.Thread(target=udpServer,args=(UDP_SERVER_PORT,))
+try:
+    packet_corruption_ratio = int(args[3])
+    delaying_ratio = int(args[4])
+    delay_time = int(args[5])
+    udpThread = threading.Thread(target=udpServer,args=(UDP_SERVER_PORT,packet_corruption_ratio,delaying_ratio, delay_time))
+except:
+    udpThread = threading.Thread(target=udpServer,args=(UDP_SERVER_PORT,))
+    
 udpThread.start()
 tcpServer(TDP_SERVER_PORT)
