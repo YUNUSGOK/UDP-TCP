@@ -102,9 +102,9 @@ def udpServer(UDP_SERVER_PORT , packet_corruption_ratio = 0, delaying_ratio = 0 
         decodedMessage , check = readMessage(recievedMessage) #Byte to JSON message and bit error check
         if(packet_corruption_ratio > 0 and random.randint(0,int(100/packet_corruption_ratio))== 0): #Packet loss will occur with given probability
             continue
-        if(delaying_ratio > 0 and random.randint(0,int(100/delaying_ratio))== 0): # delay will occur with given probablity
-            time.sleep(delay_time)
         if  (decodedMessage["index"] == expected and check == True): #no bit error and expected packet arrived
+            if(delaying_ratio > 0 and random.randint(0,int(100/delaying_ratio))== 0): # delay will occur with given probablity
+                time.sleep(delay_time)
             expected += 1 # expected packet number will be inceremented 
             recievedTimes.append(recievedTime)  # recieved time will be saved for further calculations
             sendedTimes.append(decodedMessage["sendedTime"]) # sended time will be saved for further calculations
