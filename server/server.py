@@ -162,7 +162,7 @@ TDP_SERVER_PORT = int(args[2]) # Server TCP Listener Port
 try: #Server options block for packet delay and loss
     packet_corruption_ratio = int(args[3])
     delaying_ratio = int(args[4])
-    delay_time = int(args[5])
+    delay_time = float(args[5])
     udpThread = threading.Thread(target=udpServer,args=(UDP_SERVER_PORT,packet_corruption_ratio,delaying_ratio, delay_time))
 except:
     udpThread = threading.Thread(target=udpServer,args=(UDP_SERVER_PORT,))
