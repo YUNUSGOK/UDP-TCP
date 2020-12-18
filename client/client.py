@@ -116,7 +116,7 @@ def udpClient(SERVER_IP, SERVER_PORT_UDP, CLIENT_PORT_UDP):
         for i in range(min(WINDOW_SIZE,chunkSize-base)): 
             #message with data, sended time and sended packet index
             sendedMessage = createMessage( base + i, chunks[base + i] )
-    
+
             UDPClientSocket.sendto(sendedMessage, serverAddressPort)
             totalSendCount += 1 # increment after every packet send
 
@@ -141,17 +141,24 @@ def tcpClient(SERVER_IP, SERVER_PORT_TCP, CLIENT_PORT_TCP ):
     serverAddressPort = (SERVER_IP, SERVER_PORT_TCP) #Server IP-PORT pair
     clientAddressPort = (CLIENT_IP, CLIENT_PORT_TCP) #Client IP-PORT pair
     #create TCP socket
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind(clientAddressPort)#bind socket to Client TCP IP-PORT pair
-        s.connect(serverAddressPort) #connect to Server TCP IP-PORT pair
-        
-        for i in range(chunkSize): 
+    print(chunkSize)
+    s= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind(clientAddressPort)#bind socket to Client TCP IP-PORT pair
+    s.connect(serverAddressPort) #connect to Server TCP IP-PORT pair
+    
+    for i in range(chunkSize): 
 
-            # send every chunk of the file one by one
-            sendedMessage = createMessage( i, chunks[i] ) #message with data, sended time and sended packet index
-            s.sendall(sendedMessage) # send the packet
-            data = s.recv(BUFF_SIZE) # wait for ACK from server
+        # send every chunk of the file one by one
+        sendedMessage = createMessage( i, chunks[i] ) #message with data, sended time and sended packet index
+        n = len(sendedMessage)
+        #print(n)
+        padding = " "*(1000-n)
+        #print(len(sendedMessage + padding.encode()))
+        paddedMessage = sendedMessage + padding.encode()
+        s.send(paddedMessage) # send the packet
+        #data = s.recv(BUFF_SIZE) # wait for ACK from server
+
 
 
 args = sys.argv # client parameters
@@ -162,5 +169,5 @@ CLIENT_PORT_UDP = int(args[4]) # Client UDP Sender Port
 CLIENT_PORT_TCP = int(args[5]) # Client TCP Sender Port
 
 #First TCP and then UDP will send messages to server
-#tcpClient(SERVER_IP, SERVER_PORT_TCP, CLIENT_PORT_TCP)
+tcpClient(SERVER_IP, SERVER_PORT_TCP, CLIENT_PORT_TCP)
 udpClient(SERVER_IP,SERVER_PORT_UDP, CLIENT_PORT_UDP)

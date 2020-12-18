@@ -10,7 +10,7 @@ import hashlib
 
 SERVER_IP  = socket.gethostbyname(socket.gethostname()) #Internal IP of current Host
 
-BUFF_SIZE  = 4096 #How many bites will be readed from coming message
+BUFF_SIZE  = 1000 #How many bites will be readed from coming message
 
 #Method to write given data to given filename
 def writeToFile(data,filename):
@@ -142,14 +142,15 @@ def tcpServer(TCP_SERVER_PORT ):
                 recievedTime = time.time()*1000 # recieve time of the message
                 if not recievedMessage: # transmisson is completed
                     break
-                
+                #print(len(recievedMessage))
                 decodedMessage ,_  = readMessage(recievedMessage) #Byte to JSON message
+                #print(decodedMessage)
                 recievedFileData += decodedMessage["data"] # recieved data will be saved
                 recievedTimes.append(recievedTime) # recieved time will be saved
                 
                 sendedTimes.append(decodedMessage["sendedTime"]) # sended data will be saved
 
-                conn.sendall(responseMessage(1,)) #ACK will be sended
+                #conn.sendall(responseMessage(1,)) #ACK will be sended
 
             
 
@@ -168,4 +169,4 @@ except:
     udpThread = threading.Thread(target=udpServer,args=(UDP_SERVER_PORT,))
     
 udpThread.start() #UDP server Thread
-#tcpServer(TDP_SERVER_PORT) #TCP server Thread
+tcpServer(TDP_SERVER_PORT) #TCP server Thread
