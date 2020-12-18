@@ -168,4 +168,4 @@ except:
     udpThread = threading.Thread(target=udpServer,args=(UDP_SERVER_PORT,))
     
 udpThread.start() #UDP server Thread
-tcpServer(TDP_SERVER_PORT) #TCP server Thread
+#tcpServer(TDP_SERVER_PORT) #TCP server Thread
