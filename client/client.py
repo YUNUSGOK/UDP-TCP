@@ -69,6 +69,7 @@ def reciever(UDPClientSocket,chunks):
     global lock
     global expected
     global changed
+    count = 0
     while True:
         if not(expected<chunkSize):  # base excits chunksSize transmisson is completed
             break
@@ -77,6 +78,7 @@ def reciever(UDPClientSocket,chunks):
         decodedMessage = json.loads(msgFromServer.decode('utf-8'))
 
         if(decodedMessage["index"] > expected):
+
             expected = decodedMessage["index"]
             change(True)
 
@@ -94,9 +96,9 @@ its higher than base
 def udpClient(SERVER_IP, SERVER_PORT_UDP, CLIENT_PORT_UDP):
     global lock 
     global changed
-    WINDOW_SIZE = 100 #How many packet will be send before wait for response
+    WINDOW_SIZE = 10 #How many packet will be send before wait for response
     chunks = fragmentFile("transfer_file_UDP.txt") # divide file into 500 bit chunks
-    
+
     serverAddressPort = (SERVER_IP, SERVER_PORT_UDP) #Server IP-PORT pair
     clientAddressPort = (CLIENT_IP, CLIENT_PORT_UDP) #Client IP-PORT pair
     chunkSize = len(chunks) # size of the chunks which will be packet file
@@ -141,7 +143,7 @@ def tcpClient(SERVER_IP, SERVER_PORT_TCP, CLIENT_PORT_TCP ):
     serverAddressPort = (SERVER_IP, SERVER_PORT_TCP) #Server IP-PORT pair
     clientAddressPort = (CLIENT_IP, CLIENT_PORT_TCP) #Client IP-PORT pair
     #create TCP socket
-    print(chunkSize)
+    #print(chunkSize)
     s= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind(clientAddressPort)#bind socket to Client TCP IP-PORT pair

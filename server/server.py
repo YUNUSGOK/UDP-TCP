@@ -31,6 +31,8 @@ def createChecksum(d):
         total += int(hexValue,16)
     return total
 
+def decision(p):
+    return random.random() < p
 
 """
 Output of the server for each protocol.
@@ -100,10 +102,10 @@ def udpServer(UDP_SERVER_PORT , packet_corruption_ratio = 0, delaying_ratio = 0 
         if not recievedMessage: # If an empty message is sended and the transmisson
             break
         decodedMessage , check = readMessage(recievedMessage) #Byte to JSON message and bit error check
-        if(packet_corruption_ratio > 0 and random.randint(0,int(100/packet_corruption_ratio))== 0): #Packet loss will occur with given probability
+        if(decision(packet_corruption_ratio/100)): #Packet loss will occur with given probability
             continue
         if  (decodedMessage["index"] == expected and check == True): #no bit error and expected packet arrived
-            if(delaying_ratio > 0 and random.randint(0,int(100/delaying_ratio))== 0): # delay will occur with given probablity
+            if(decision(delaying_ratio/100)): # delay will occur with given probablity
                 time.sleep(delay_time)
             expected += 1 # expected packet number will be inceremented 
             recievedTimes.append(recievedTime)  # recieved time will be saved for further calculations
@@ -133,7 +135,7 @@ def tcpServer(TCP_SERVER_PORT ):
         s.listen() # wait for a client to connect
         conn, addr = s.accept() #accept connection
         recievedFileData = ""    #readed file data
-
+        #print(addr)
         with conn: # opens the connection for the client
 
             while True: #waits and reads message coming from client
@@ -167,6 +169,6 @@ try: #Server options block for packet delay and loss
     udpThread = threading.Thread(target=udpServer,args=(UDP_SERVER_PORT,packet_corruption_ratio,delaying_ratio, delay_time))
 except:
     udpThread = threading.Thread(target=udpServer,args=(UDP_SERVER_PORT,))
-    
+
 udpThread.start() #UDP server Thread
 tcpServer(TDP_SERVER_PORT) #TCP server Thread

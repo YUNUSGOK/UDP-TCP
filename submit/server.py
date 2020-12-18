@@ -10,7 +10,7 @@ import hashlib
 
 SERVER_IP  = socket.gethostbyname(socket.gethostname()) #Internal IP of current Host
 
-BUFF_SIZE  = 4096 #How many bites will be readed from coming message
+BUFF_SIZE  = 1000 #How many bites will be readed from coming message
 
 #Method to write given data to given filename
 def writeToFile(data,filename):
@@ -31,6 +31,8 @@ def createChecksum(d):
         total += int(hexValue,16)
     return total
 
+def decision(p):
+    return random.random() < p
 
 """
 Output of the server for each protocol.
@@ -100,10 +102,10 @@ def udpServer(UDP_SERVER_PORT , packet_corruption_ratio = 0, delaying_ratio = 0 
         if not recievedMessage: # If an empty message is sended and the transmisson
             break
         decodedMessage , check = readMessage(recievedMessage) #Byte to JSON message and bit error check
-        if(packet_corruption_ratio > 0 and random.randint(0,int(100/packet_corruption_ratio))== 0): #Packet loss will occur with given probability
+        if(decision(packet_corruption_ratio/100)): #Packet loss will occur with given probability
             continue
         if  (decodedMessage["index"] == expected and check == True): #no bit error and expected packet arrived
-            if(delaying_ratio > 0 and random.randint(0,int(100/delaying_ratio))== 0): # delay will occur with given probablity
+            if(decision(delaying_ratio/100)): # delay will occur with given probablity
                 time.sleep(delay_time)
             expected += 1 # expected packet number will be inceremented 
             recievedTimes.append(recievedTime)  # recieved time will be saved for further calculations
@@ -133,7 +135,7 @@ def tcpServer(TCP_SERVER_PORT ):
         s.listen() # wait for a client to connect
         conn, addr = s.accept() #accept connection
         recievedFileData = ""    #readed file data
-
+        #print(addr)
         with conn: # opens the connection for the client
 
             while True: #waits and reads message coming from client
@@ -142,14 +144,15 @@ def tcpServer(TCP_SERVER_PORT ):
                 recievedTime = time.time()*1000 # recieve time of the message
                 if not recievedMessage: # transmisson is completed
                     break
-                
+                #print(len(recievedMessage))
                 decodedMessage ,_  = readMessage(recievedMessage) #Byte to JSON message
+                #print(decodedMessage)
                 recievedFileData += decodedMessage["data"] # recieved data will be saved
                 recievedTimes.append(recievedTime) # recieved time will be saved
                 
                 sendedTimes.append(decodedMessage["sendedTime"]) # sended data will be saved
 
-                conn.sendall(responseMessage(1,)) #ACK will be sended
+                #conn.sendall(responseMessage(1,)) #ACK will be sended
 
             
 
@@ -162,10 +165,10 @@ TDP_SERVER_PORT = int(args[2]) # Server TCP Listener Port
 try: #Server options block for packet delay and loss
     packet_corruption_ratio = int(args[3])
     delaying_ratio = int(args[4])
-    delay_time = int(args[5])
+    delay_time = float(args[5])
     udpThread = threading.Thread(target=udpServer,args=(UDP_SERVER_PORT,packet_corruption_ratio,delaying_ratio, delay_time))
 except:
     udpThread = threading.Thread(target=udpServer,args=(UDP_SERVER_PORT,))
-    
+
 udpThread.start() #UDP server Thread
 tcpServer(TDP_SERVER_PORT) #TCP server Thread
