@@ -23,6 +23,7 @@ def change(x):
     global changed
     changed = x
     lock.release()
+
 # Fragment file into 500 bit chunks
 def fragmentFile(filename):
     f = open(filename,"r")
