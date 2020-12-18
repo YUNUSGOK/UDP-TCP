@@ -78,10 +78,9 @@ def reciever(UDPClientSocket,chunks):
         decodedMessage = json.loads(msgFromServer.decode('utf-8'))
 
         if(decodedMessage["index"] > expected):
-            count +=1
 
-            change(True)
             expected = decodedMessage["index"]
+            change(True)
 
 """
 Main function of UDP client which will send data to from given port to
@@ -144,7 +143,7 @@ def tcpClient(SERVER_IP, SERVER_PORT_TCP, CLIENT_PORT_TCP ):
     serverAddressPort = (SERVER_IP, SERVER_PORT_TCP) #Server IP-PORT pair
     clientAddressPort = (CLIENT_IP, CLIENT_PORT_TCP) #Client IP-PORT pair
     #create TCP socket
-    print(chunkSize)
+    #print(chunkSize)
     s= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind(clientAddressPort)#bind socket to Client TCP IP-PORT pair
