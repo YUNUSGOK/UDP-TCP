@@ -152,9 +152,10 @@ def tcpServer(TCP_SERVER_PORT ):
                 if not recievedMessage: # transmisson is completed
                     break
                 #print(len(recievedMessage))
-
-                decodedMessage ,_  = readMessage(recievedMessage) #Byte to JSON message
-
+                try:
+                    decodedMessage ,_  = readMessage(recievedMessage) #Byte to JSON message
+                except: 
+                    continue
                 #print(decodedMessage)
                 recievedFileData += decodedMessage["data"] # recieved data will be saved
                 recievedTimes.append(recievedTime) # recieved time will be saved
