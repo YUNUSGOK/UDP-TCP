@@ -98,6 +98,7 @@ its higher than base
 def udpClient(SERVER_IP, SERVER_PORT_UDP, CLIENT_PORT_UDP):
     global lock 
     global changed
+    global expected
     WINDOW_SIZE = 10 #How many packet will be send before wait for response
     chunks = fragmentFile("transfer_file_UDP.txt") # divide file into 500 bit chunks
 
@@ -120,7 +121,7 @@ def udpClient(SERVER_IP, SERVER_PORT_UDP, CLIENT_PORT_UDP):
         for i in range(min(WINDOW_SIZE,chunkSize-base)): 
             #message with data, sended time and sended packet index
             sendedMessage = createMessage( base + i, chunks[base + i] )
-
+            print(base+i)
             UDPClientSocket.sendto(sendedMessage, serverAddressPort)
             totalSendCount += 1 # increment after every packet send
         
