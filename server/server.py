@@ -58,8 +58,10 @@ def printTimes(recievedTimes,sendedTimes,protocol):
 
 #Server response message includes expected index of UDP server
 def responseMessage(id,index=-1):
-    mdict = {'messageId' : id, "index" : index} 
-    return json.dumps(mdict).encode('utf-8') 
+    header = {'messageId' : id, "index" : index}
+    checksum = createChecksum(header)
+    message = {'header': header, "checksum": checksum }
+    return json.dumps(message).encode('utf-8') #JSON to Bytes
 
 """
 Message came from client contains a checksum and message itself

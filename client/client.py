@@ -59,6 +59,11 @@ def createChecksum(d):
         total += int(hexValue,16)
     return total
 
+def readMessage(message):
+    decodedMessage = json.loads(message.decode('utf-8'))
+    header = decodedMessage["header"]
+    check = createChecksum(header) == decodedMessage["checksum"]
+    return header,check
 
 """ 
 Reciever thread function for listening messages coming from UDP server
@@ -74,11 +79,12 @@ def reciever(UDPClientSocket,chunks):
         if not(expected<chunkSize):  # base excits chunksSize transmisson is completed
             break
         
-        msgFromServer,address = UDPClientSocket.recvfrom(BUFF_SIZE)
+        recievedMessage,address = UDPClientSocket.recvfrom(BUFF_SIZE)
         try:
-            decodedMessage = json.loads(msgFromServer.decode('utf-8'))
+
+            decodedMessage , check = readMessage(recievedMessage)
             print("server ex:",decodedMessage["index"]," our ex:", expected)
-            if(decodedMessage["index"] > expected):
+            if(decodedMessage["index"] > expected and (check==True)):
             
                 expected = decodedMessage["index"]
                 change(True)
