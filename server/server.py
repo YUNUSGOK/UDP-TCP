@@ -44,14 +44,11 @@ def printTimes(recievedTimes,sendedTimes,protocol):
     transmissionTimes = []
     n= len(recievedTimes)
     for i in range(n):
-        try:
-            r = recievedTimes[i]
-            s = sendedTimes[i]
 
-            transmissionTimes.append(r - s)
-        except:
-            print(i," ", len(sendedTimes)," ", len(recievedTimes))
-            break
+        r = recievedTimes[i]
+        s = sendedTimes[i]
+
+        transmissionTimes.append(r - s)
     
     avgTime = sum(transmissionTimes)/len(transmissionTimes)
     startTime = sendedTimes[0]
@@ -116,8 +113,8 @@ def udpServer(UDP_SERVER_PORT , packet_corruption_ratio = 0, delaying_ratio = 0 
                 if(decision(delaying_ratio/100)): # delay will occur with given probablity
                     time.sleep(delay_time)
                 expected += 1 # expected packet number will be inceremented 
-                recievedTimes.append(recievedTime)  # recieved time will be saved for further calculations
                 sendedTimes.append(decodedMessage["sendedTime"]) # sended time will be saved for further calculations
+                recievedTimes.append(recievedTime)  # recieved time will be saved for further calculations
                 UDPServerSocket.sendto(responseMessage(1,expected), address) #ACK will be sended
                 recievedFileData += decodedMessage["data"]  # recieved data will be saved
             else:
