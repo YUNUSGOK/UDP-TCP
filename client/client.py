@@ -171,5 +171,5 @@ CLIENT_PORT_UDP = int(args[4]) # Client UDP Sender Port
 CLIENT_PORT_TCP = int(args[5]) # Client TCP Sender Port
 
 #First TCP and then UDP will send messages to server
-tcpClient(SERVER_IP, SERVER_PORT_TCP, CLIENT_PORT_TCP)
 udpClient(SERVER_IP,SERVER_PORT_UDP, CLIENT_PORT_UDP)
+tcpClient(SERVER_IP, SERVER_PORT_TCP, CLIENT_PORT_TCP)
