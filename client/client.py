@@ -75,8 +75,10 @@ def reciever(UDPClientSocket,chunks):
             break
         
         msgFromServer,address = UDPClientSocket.recvfrom(BUFF_SIZE)
-        decodedMessage = json.loads(msgFromServer.decode('utf-8'))
-
+        try:
+            decodedMessage = json.loads(msgFromServer.decode('utf-8'))
+        except:
+            continue
         if(decodedMessage["index"] > expected):
 
             expected = decodedMessage["index"]
