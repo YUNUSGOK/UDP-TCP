@@ -103,20 +103,20 @@ def udpServer(UDP_SERVER_PORT , packet_corruption_ratio = 0, delaying_ratio = 0 
             break
         try:
             decodedMessage , check = readMessage(recievedMessage) #Byte to JSON message and bit error check
+            if(decision(packet_corruption_ratio/100)): #Packet loss will occur with given probability
+                continue
+            if  (decodedMessage["index"] == expected and check == True): #no bit error and expected packet arrived
+                if(decision(delaying_ratio/100)): # delay will occur with given probablity
+                    time.sleep(delay_time)
+                expected += 1 # expected packet number will be inceremented 
+                recievedTimes.append(recievedTime)  # recieved time will be saved for further calculations
+                sendedTimes.append(decodedMessage["sendedTime"]) # sended time will be saved for further calculations
+                UDPServerSocket.sendto(responseMessage(1,expected), address) #ACK will be sended
+                recievedFileData += decodedMessage["data"]  # recieved data will be saved
+            else:
+                (UDPServerSocket.sendto(responseMessage(0, expected), address) ) #ACK will be sended
         except:
             continue
-        if(decision(packet_corruption_ratio/100)): #Packet loss will occur with given probability
-            continue
-        if  (decodedMessage["index"] == expected and check == True): #no bit error and expected packet arrived
-            if(decision(delaying_ratio/100)): # delay will occur with given probablity
-                time.sleep(delay_time)
-            expected += 1 # expected packet number will be inceremented 
-            recievedTimes.append(recievedTime)  # recieved time will be saved for further calculations
-            sendedTimes.append(decodedMessage["sendedTime"]) # sended time will be saved for further calculations
-            UDPServerSocket.sendto(responseMessage(1,expected), address) #ACK will be sended
-            recievedFileData += decodedMessage["data"]  # recieved data will be saved
-        else:
-            (UDPServerSocket.sendto(responseMessage(0, expected), address) ) #ACK will be sended
 
     printTimes(recievedTimes,sendedTimes,"UDP") # print avg and total time
     writeToFile(recievedFileData,"transfer_file_UDP.txt") #writes given data to 
