@@ -120,7 +120,7 @@ def udpServer(UDP_SERVER_PORT , packet_corruption_ratio = 0, delaying_ratio = 0 
             else:
                 (UDPServerSocket.sendto(responseMessage(0, expected), address) ) #ACK will be sended
         except:
-            continue
+            (UDPServerSocket.sendto(responseMessage(0, expected), address) ) #ACK will be sended
 
     printTimes(recievedTimes,sendedTimes,"UDP") # print avg and total time
     writeToFile(recievedFileData,"transfer_file_UDP.txt") #writes given data to 
