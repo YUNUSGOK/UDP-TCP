@@ -76,9 +76,9 @@ def reciever(UDPClientSocket,chunks):
         
         msgFromServer,address = UDPClientSocket.recvfrom(BUFF_SIZE)
         decodedMessage = json.loads(msgFromServer.decode('utf-8'))
-
+        print("server ex: ",decodedMessage["index"])
         if(decodedMessage["index"] > expected):
-
+            print(decodedMessage["index"])
             expected = decodedMessage["index"]
             change(True)
 
@@ -118,7 +118,7 @@ def udpClient(SERVER_IP, SERVER_PORT_UDP, CLIENT_PORT_UDP):
         for i in range(min(WINDOW_SIZE,chunkSize-base)): 
             #message with data, sended time and sended packet index
             sendedMessage = createMessage( base + i, chunks[base + i] )
-
+            print("sended:",base+i)
             UDPClientSocket.sendto(sendedMessage, serverAddressPort)
             totalSendCount += 1 # increment after every packet send
 
