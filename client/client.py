@@ -77,8 +77,9 @@ def reciever(UDPClientSocket,chunks):
         msgFromServer,address = UDPClientSocket.recvfrom(BUFF_SIZE)
         try:
             decodedMessage = json.loads(msgFromServer.decode('utf-8'))
+            print("server ex:",decodedMessage["index"]," our ex:", expected)
             if(decodedMessage["index"] > expected):
-
+            
                 expected = decodedMessage["index"]
                 change(True)
         except:
