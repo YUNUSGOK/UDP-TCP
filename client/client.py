@@ -123,7 +123,7 @@ def udpClient(SERVER_IP, SERVER_PORT_UDP, CLIENT_PORT_UDP):
 
             UDPClientSocket.sendto(sendedMessage, serverAddressPort)
             totalSendCount += 1 # increment after every packet send
-
+        
 
         count = 0 #timer count
         #wait for 1 second and if expected is changed continue sending packets
