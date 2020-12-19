@@ -154,7 +154,7 @@ def tcpServer(TCP_SERVER_PORT ):
                 recievedTime = time.time()*1000 # recieve time of the message
                 if not recievedMessage: # transmisson is completed
                     break
-                print(len(recievedMessage))
+                #print(len(recievedMessage))
 
                 decodedMessage ,_  = readMessage(recievedMessage) #Byte to JSON message
 
@@ -165,6 +165,8 @@ def tcpServer(TCP_SERVER_PORT ):
                 sendedTimes.append(decodedMessage["sendedTime"]) # sended data will be saved
                 
                 conn.sendall(responseMessage(1,)) #ACK will be sended
+                if(decodedMessage["size"] == decodedMessage["index"]):
+                    break
             conn.close()
 
 

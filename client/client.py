@@ -37,11 +37,11 @@ def fragmentFile(filename):
     return chunks
 # Create message with data, sended time and 
 # checksum for both UDP and TCP
-def createMessage( index=0, data = ""):
+def createMessage( index=0, data = "",chunkSize = 0):
 
     sendedTime = time.time()*1000 #current time
     header = {'sendedTime' : sendedTime,
-        'index' : index, 'data': data}
+        'index' : index,"size" : chunkSize , 'data': data}
     checksum = createChecksum(header) #checksum created
     message = {'header': header, "checksum": checksum }
     return json.dumps(message).encode('utf-8') #JSON to Bytes
@@ -163,7 +163,7 @@ def tcpClient(SERVER_IP, SERVER_PORT_TCP, CLIENT_PORT_TCP ):
     for i in range(chunkSize): 
 
         # send every chunk of the file one by one
-        sendedMessage = createMessage( i, chunks[i] ) #message with data, sended time and sended packet index
+        sendedMessage = createMessage( i, chunks[i], chunkSize ) #message with data, sended time and sended packet index
         n = len(sendedMessage)
         #print(n)
         padding = " "*(1000-n)
