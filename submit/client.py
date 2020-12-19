@@ -59,6 +59,11 @@ def createChecksum(d):
         total += int(hexValue,16)
     return total
 
+def readMessage(message):
+    decodedMessage = json.loads(message.decode('utf-8'))
+    header = decodedMessage["header"]
+    check = createChecksum(header) == decodedMessage["checksum"]
+    return header,check
 
 """ 
 Reciever thread function for listening messages coming from UDP server
@@ -74,13 +79,17 @@ def reciever(UDPClientSocket,chunks):
         if not(expected<chunkSize):  # base excits chunksSize transmisson is completed
             break
         
-        msgFromServer,address = UDPClientSocket.recvfrom(BUFF_SIZE)
-        decodedMessage = json.loads(msgFromServer.decode('utf-8'))
-        print("server ex: ",decodedMessage["index"])
-        if(decodedMessage["index"] > expected):
-            print(decodedMessage["index"])
-            expected = decodedMessage["index"]
-            change(True)
+        recievedMessage,address = UDPClientSocket.recvfrom(BUFF_SIZE)
+        try:
+
+            decodedMessage , check = readMessage(recievedMessage)
+            #print("server ex:",decodedMessage["index"]," our ex:", expected)
+            if(decodedMessage["index"] > expected and (check==True)):
+            
+                expected = decodedMessage["index"]
+                change(True)
+        except:
+            continue
 
 """
 Main function of UDP client which will send data to from given port to
@@ -96,6 +105,7 @@ its higher than base
 def udpClient(SERVER_IP, SERVER_PORT_UDP, CLIENT_PORT_UDP):
     global lock 
     global changed
+    global expected
     WINDOW_SIZE = 10 #How many packet will be send before wait for response
     chunks = fragmentFile("transfer_file_UDP.txt") # divide file into 500 bit chunks
 
@@ -118,10 +128,10 @@ def udpClient(SERVER_IP, SERVER_PORT_UDP, CLIENT_PORT_UDP):
         for i in range(min(WINDOW_SIZE,chunkSize-base)): 
             #message with data, sended time and sended packet index
             sendedMessage = createMessage( base + i, chunks[base + i] )
-            print("sended:",base+i)
+            #print(base+i)
             UDPClientSocket.sendto(sendedMessage, serverAddressPort)
             totalSendCount += 1 # increment after every packet send
-
+        
 
         count = 0 #timer count
         #wait for 1 second and if expected is changed continue sending packets
@@ -148,7 +158,8 @@ def tcpClient(SERVER_IP, SERVER_PORT_TCP, CLIENT_PORT_TCP ):
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind(clientAddressPort)#bind socket to Client TCP IP-PORT pair
     s.connect(serverAddressPort) #connect to Server TCP IP-PORT pair
-    
+    totalMessage = "".encode()
+
     for i in range(chunkSize): 
 
         # send every chunk of the file one by one
@@ -158,9 +169,10 @@ def tcpClient(SERVER_IP, SERVER_PORT_TCP, CLIENT_PORT_TCP ):
         padding = " "*(1000-n)
         #print(len(sendedMessage + padding.encode()))
         paddedMessage = sendedMessage + padding.encode()
-        s.send(paddedMessage) # send the packet
+        totalMessage += paddedMessage
         #data = s.recv(BUFF_SIZE) # wait for ACK from server
-
+        s.sendall(paddedMessage) # send the packet
+    s.shutdown(1)
 
 
 args = sys.argv # client parameters
@@ -171,5 +183,5 @@ CLIENT_PORT_UDP = int(args[4]) # Client UDP Sender Port
 CLIENT_PORT_TCP = int(args[5]) # Client TCP Sender Port
 
 #First TCP and then UDP will send messages to server
-tcpClient(SERVER_IP, SERVER_PORT_TCP, CLIENT_PORT_TCP)
 udpClient(SERVER_IP,SERVER_PORT_UDP, CLIENT_PORT_UDP)
+tcpClient(SERVER_IP, SERVER_PORT_TCP, CLIENT_PORT_TCP)

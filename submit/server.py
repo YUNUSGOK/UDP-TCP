@@ -44,6 +44,7 @@ def printTimes(recievedTimes,sendedTimes,protocol):
     transmissionTimes = []
     n= len(recievedTimes)
     for i in range(n):
+
         r = recievedTimes[i]
         s = sendedTimes[i]
 
@@ -58,8 +59,10 @@ def printTimes(recievedTimes,sendedTimes,protocol):
 
 #Server response message includes expected index of UDP server
 def responseMessage(id,index=-1):
-    mdict = {'messageId' : id, "index" : index} 
-    return json.dumps(mdict).encode('utf-8') 
+    header = {'messageId' : id, "index" : index}
+    checksum = createChecksum(header)
+    message = {'header': header, "checksum": checksum }
+    return json.dumps(message).encode('utf-8') #JSON to Bytes
 
 """
 Message came from client contains a checksum and message itself
@@ -101,19 +104,23 @@ def udpServer(UDP_SERVER_PORT , packet_corruption_ratio = 0, delaying_ratio = 0 
         recievedTime = time.time()*1000 # recieve time of the message
         if not recievedMessage: # If an empty message is sended and the transmisson
             break
-        decodedMessage , check = readMessage(recievedMessage) #Byte to JSON message and bit error check
-        if(decision(packet_corruption_ratio/100)): #Packet loss will occur with given probability
+        try:
+            decodedMessage , check = readMessage(recievedMessage) #Byte to JSON message and bit error check
+            if(decision(packet_corruption_ratio/100)): #Packet loss will occur with given probability
+                continue
+            #print("recieved",decodedMessage["index"],"expected",expected)
+            if  (decodedMessage["index"] == expected and check == True): #no bit error and expected packet arrived
+                if(decision(delaying_ratio/100)): # delay will occur with given probablity
+                    time.sleep(delay_time)
+                expected += 1 # expected packet number will be inceremented 
+                sendedTimes.append(decodedMessage["sendedTime"]) # sended time will be saved for further calculations
+                recievedTimes.append(recievedTime)  # recieved time will be saved for further calculations
+                UDPServerSocket.sendto(responseMessage(1,expected), address) #ACK will be sended
+                recievedFileData += decodedMessage["data"]  # recieved data will be saved
+            else:
+                (UDPServerSocket.sendto(responseMessage(0, expected), address) ) #ACK will be sended
+        except:
             continue
-        if  (decodedMessage["index"] == expected and check == True): #no bit error and expected packet arrived
-            if(decision(delaying_ratio/100)): # delay will occur with given probablity
-                time.sleep(delay_time)
-            expected += 1 # expected packet number will be inceremented 
-            recievedTimes.append(recievedTime)  # recieved time will be saved for further calculations
-            sendedTimes.append(decodedMessage["sendedTime"]) # sended time will be saved for further calculations
-            UDPServerSocket.sendto(responseMessage(1,expected), address) #ACK will be sended
-            recievedFileData += decodedMessage["data"]  # recieved data will be saved
-        else:
-            (UDPServerSocket.sendto(responseMessage(0, expected), address) ) #ACK will be sended
 
     printTimes(recievedTimes,sendedTimes,"UDP") # print avg and total time
     writeToFile(recievedFileData,"transfer_file_UDP.txt") #writes given data to 
@@ -145,7 +152,9 @@ def tcpServer(TCP_SERVER_PORT ):
                 if not recievedMessage: # transmisson is completed
                     break
                 #print(len(recievedMessage))
+
                 decodedMessage ,_  = readMessage(recievedMessage) #Byte to JSON message
+
                 #print(decodedMessage)
                 recievedFileData += decodedMessage["data"] # recieved data will be saved
                 recievedTimes.append(recievedTime) # recieved time will be saved
@@ -153,6 +162,7 @@ def tcpServer(TCP_SERVER_PORT ):
                 sendedTimes.append(decodedMessage["sendedTime"]) # sended data will be saved
 
                 #conn.sendall(responseMessage(1,)) #ACK will be sended
+            s.shutdown(1)
 
             
 

@@ -83,7 +83,7 @@ def reciever(UDPClientSocket,chunks):
         try:
 
             decodedMessage , check = readMessage(recievedMessage)
-            print("server ex:",decodedMessage["index"]," our ex:", expected)
+            #print("server ex:",decodedMessage["index"]," our ex:", expected)
             if(decodedMessage["index"] > expected and (check==True)):
             
                 expected = decodedMessage["index"]
@@ -128,7 +128,7 @@ def udpClient(SERVER_IP, SERVER_PORT_UDP, CLIENT_PORT_UDP):
         for i in range(min(WINDOW_SIZE,chunkSize-base)): 
             #message with data, sended time and sended packet index
             sendedMessage = createMessage( base + i, chunks[base + i] )
-            print(base+i)
+            #print(base+i)
             UDPClientSocket.sendto(sendedMessage, serverAddressPort)
             totalSendCount += 1 # increment after every packet send
         
@@ -171,7 +171,7 @@ def tcpClient(SERVER_IP, SERVER_PORT_TCP, CLIENT_PORT_TCP ):
         paddedMessage = sendedMessage + padding.encode()
         totalMessage += paddedMessage
         #data = s.recv(BUFF_SIZE) # wait for ACK from server
-        s.sendall(paddedMessage) # send the packet
+    s.sendall(totalMessage) # send the packet
     s.shutdown(1)
 
 
