@@ -77,12 +77,12 @@ def reciever(UDPClientSocket,chunks):
         msgFromServer,address = UDPClientSocket.recvfrom(BUFF_SIZE)
         try:
             decodedMessage = json.loads(msgFromServer.decode('utf-8'))
+            if(decodedMessage["index"] > expected):
+
+                expected = decodedMessage["index"]
+                change(True)
         except:
             continue
-        if(decodedMessage["index"] > expected):
-
-            expected = decodedMessage["index"]
-            change(True)
 
 """
 Main function of UDP client which will send data to from given port to
