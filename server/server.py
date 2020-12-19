@@ -165,8 +165,8 @@ def tcpServer(TCP_SERVER_PORT ):
                 sendedTimes.append(decodedMessage["sendedTime"]) # sended data will be saved
                 
                 conn.sendall(responseMessage(1,)) #ACK will be sended
-        
-            
+            conn.shutdown(1)
+
 
     printTimes(recievedTimes,sendedTimes,"TCP") # print avg and total time
     writeToFile(recievedFileData,"transfer_file_TCP.txt") #writes given data to 
