@@ -101,7 +101,10 @@ def udpServer(UDP_SERVER_PORT , packet_corruption_ratio = 0, delaying_ratio = 0 
         recievedTime = time.time()*1000 # recieve time of the message
         if not recievedMessage: # If an empty message is sended and the transmisson
             break
-        decodedMessage , check = readMessage(recievedMessage) #Byte to JSON message and bit error check
+        try:
+            decodedMessage , check = readMessage(recievedMessage) #Byte to JSON message and bit error check
+        except:
+            continue
         if(decision(packet_corruption_ratio/100)): #Packet loss will occur with given probability
             continue
         if  (decodedMessage["index"] == expected and check == True): #no bit error and expected packet arrived
@@ -145,7 +148,10 @@ def tcpServer(TCP_SERVER_PORT ):
                 if not recievedMessage: # transmisson is completed
                     break
                 #print(len(recievedMessage))
-                decodedMessage ,_  = readMessage(recievedMessage) #Byte to JSON message
+                try:
+                    decodedMessage ,_  = readMessage(recievedMessage) #Byte to JSON message
+                except:
+                    continue
                 #print(decodedMessage)
                 recievedFileData += decodedMessage["data"] # recieved data will be saved
                 recievedTimes.append(recievedTime) # recieved time will be saved
