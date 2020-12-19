@@ -165,8 +165,10 @@ def tcpServer(TCP_SERVER_PORT ):
                 sendedTimes.append(decodedMessage["sendedTime"]) # sended data will be saved
                 
                 conn.sendall(responseMessage(1,)) #ACK will be sended
-                if(decodedMessage["size"] == decodedMessage["index"]):
+                if(decodedMessage["size"]-1 == decodedMessage["index"]):
+                    print("break")
                     break
+
             conn.close()
 
 
