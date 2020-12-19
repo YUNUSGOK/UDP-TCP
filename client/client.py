@@ -128,7 +128,7 @@ def udpClient(SERVER_IP, SERVER_PORT_UDP, CLIENT_PORT_UDP):
         for i in range(min(WINDOW_SIZE,chunkSize-base)): 
             #message with data, sended time and sended packet index
             sendedMessage = createMessage( base + i, chunks[base + i] )
-            print(base+i)
+            p#rint(base+i)
             UDPClientSocket.sendto(sendedMessage, serverAddressPort)
             totalSendCount += 1 # increment after every packet send
         
