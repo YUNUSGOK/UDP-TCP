@@ -170,9 +170,9 @@ def tcpClient(SERVER_IP, SERVER_PORT_TCP, CLIENT_PORT_TCP ):
         #print(len(sendedMessage + padding.encode()))
         paddedMessage = sendedMessage + padding.encode()
         totalMessage += paddedMessage
-        #data = s.recv(BUFF_SIZE) # wait for ACK from server
         s.sendall(paddedMessage) # send the packet
-    s.shutdown(1)
+        data = s.recv(BUFF_SIZE) # wait for ACK from server
+
 
 
 args = sys.argv # client parameters

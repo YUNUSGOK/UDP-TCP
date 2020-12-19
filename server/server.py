@@ -163,9 +163,8 @@ def tcpServer(TCP_SERVER_PORT ):
                 recievedTimes.append(recievedTime) # recieved time will be saved
                 
                 sendedTimes.append(decodedMessage["sendedTime"]) # sended data will be saved
-
-                #conn.sendall(responseMessage(1,)) #ACK will be sended
-            s.shutdown(1)
+                
+                conn.sendall(responseMessage(1,)) #ACK will be sended
 
             
 
