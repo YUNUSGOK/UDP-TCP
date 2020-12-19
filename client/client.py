@@ -148,7 +148,8 @@ def tcpClient(SERVER_IP, SERVER_PORT_TCP, CLIENT_PORT_TCP ):
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind(clientAddressPort)#bind socket to Client TCP IP-PORT pair
     s.connect(serverAddressPort) #connect to Server TCP IP-PORT pair
-    
+    totalMessage = "".encode()
+
     for i in range(chunkSize): 
 
         # send every chunk of the file one by one
@@ -158,8 +159,9 @@ def tcpClient(SERVER_IP, SERVER_PORT_TCP, CLIENT_PORT_TCP ):
         padding = " "*(1000-n)
         #print(len(sendedMessage + padding.encode()))
         paddedMessage = sendedMessage + padding.encode()
-        s.send(paddedMessage) # send the packet
+        totalMessage += paddedMessage
         #data = s.recv(BUFF_SIZE) # wait for ACK from server
+    s.sendall(paddedMessage) # send the packet
 
 
 
