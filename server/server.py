@@ -50,7 +50,8 @@ def printTimes(recievedTimes,sendedTimes,protocol):
 
             transmissionTimes.append(r - s)
         except:
-            print(i," ", len(sendedTimes0)," ", len(recievedTimes))
+            print(i," ", len(sendedTimes)," ", len(recievedTimes))
+            break
     
     avgTime = sum(transmissionTimes)/len(transmissionTimes)
     startTime = sendedTimes[0]
